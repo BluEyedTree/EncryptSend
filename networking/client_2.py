@@ -1,28 +1,24 @@
-import socket
-import sys
+import socket                   # Import socket module
 
-def main():
-    soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    host = "127.0.0.1"
-    port = 65432
+s = socket.socket()             # Create a socket object
+host = socket.gethostname()     # Get local machine name
+port = 60002                    # Reserve a port for your service.
 
-    try:
-        soc.connect((host, port))
-    except:
-        print("Connection error")
-        sys.exit()
+s.connect((host, port))
+s.send("Hello server!".encode('utf-8'))
 
-    print("Enter 'quit' to exit")
-    message = input(" -> ")
+with open('received_file', 'wb') as f:
+    print ('file opened')
+    while True:
+        print('receiving data...')
+        data = s.recv(1024)
+        print('data=%s', (data))
+        if not data:
+            break
+        # write data to a file
+        f.write(data)
 
-    while message != 'quit':
-        soc.sendall(message.encode("utf8"))
-        if soc.recv(100000).decode("utf8") == "-":
-            pass        # null operation
-
-        message = input(" -> ")
-
-    soc.send(b'--quit--')
-
-if __name__ == "__main__":
-    main()
+f.close()
+print('Successfully get the file')
+s.close()
+print('connection closed')
